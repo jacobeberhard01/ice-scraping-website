@@ -31,3 +31,11 @@ BEGIN
     ALTER TABLE public.bookings ADD CONSTRAINT bookings_payment_option_check CHECK (payment_option IN ('Venmo', 'Zelle', 'Cash'));
   END IF;
 END$$;
+
+alter table public.bookings add column if not exists payment_status text not null default 'Unpaid';
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'bookings_payment_status_check') THEN
+    ALTER TABLE public.bookings ADD CONSTRAINT bookings_payment_status_check CHECK (payment_status IN ('Unpaid', 'Paid'));
+  END IF;
+END$$;
