@@ -21,3 +21,13 @@ create table if not exists public.bookings (
 alter table public.bookings enable row level security;
 alter table public.bookings add column if not exists service_day text;
 alter table public.bookings add column if not exists weekly_schedule jsonb not null default '{}'::jsonb;
+alter table public.bookings add column if not exists license_state text;
+
+alter table public.bookings add column if not exists payment_option text;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'bookings_payment_option_check') THEN
+    ALTER TABLE public.bookings ADD CONSTRAINT bookings_payment_option_check CHECK (payment_option IN ('Venmo', 'Zelle', 'Cash'));
+  END IF;
+END$$;
